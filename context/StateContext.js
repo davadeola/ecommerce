@@ -43,6 +43,75 @@ export const StateContext = ({ children }) => {
     toast.success(`${qty} ${product.title} added to the cart`);
   };
 
+  //LOGIC TO UPDATE ITEMS IN CART
+  let foundProduct;
+  let index;
+
+  const toggleCartItemQuantity = (id, value) => {
+    //find the found product and its index
+    foundProduct = cartItems.find((item) => item._id == id);
+    index = cartItems.findIndex((product) => product._id === id);
+    const newCartItems = cartItems.filter((item) => item._id !== id);
+
+    if (value === "inc") {
+      //update items in cart
+
+      newCartItems.splice(index, 0, {
+        ...foundProduct,
+        quantity: foundProduct.quantity + 1,
+      });
+
+      setCartItems(newCartItems);
+
+      //update the price
+      setTotalPrice(
+        (prevTotalPrice) =>
+          prevTotalPrice + foundProduct.defaultProductVariant.price
+      );
+
+      //update the quantities
+      setTotalQuantities((prevTotalQuantities) => prevTotalQuantities + 1);
+    } else if (value == "dec") {
+      if (foundProduct.quantity > 1) {
+        //update items in cart
+
+        newCartItems.splice(index, 0, {
+          ...foundProduct,
+          quantity: foundProduct.quantity - 1,
+        });
+
+        setCartItems(newCartItems);
+
+        //update the price
+        setTotalPrice(
+          (prevTotalPrice) =>
+            prevTotalPrice - foundProduct.defaultProductVariant.price
+        );
+
+        //update the quantities
+        setTotalQuantities((prevTotalQuantities) => prevTotalQuantities - 1);
+      }
+    }
+  };
+
+  const onRemove = (id) => {
+    //find the found product and its index
+    foundProduct = cartItems.find((item) => item._id == id);
+    const newCartItems = cartItems.filter((item) => item._id !== id);
+
+    setTotalPrice(
+      (prevTotalPrice) =>
+        prevTotalPrice -
+        foundProduct.defaultProductVariant.price * foundProduct.quantity
+    );
+
+    setTotalQuantities(
+      (prevTotalQuantities) => prevTotalQuantities - foundProduct.quantity
+    );
+
+    setCartItems(newCartItems);
+  };
+
   //INCREASE QUANTITY OF SINGLE ITEM
   const incQty = () => {
     setQty((prevQty) => prevQty + 1);
@@ -69,6 +138,8 @@ export const StateContext = ({ children }) => {
         incQty,
         decQty,
         onAdd,
+        toggleCartItemQuantity,
+        onRemove,
       }}
     >
       {children}
