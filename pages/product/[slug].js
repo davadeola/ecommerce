@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   AiOutlineMinus,
   AiOutlinePlus,
@@ -10,6 +10,8 @@ import { client, urlFor } from "../../lib/client";
 
 import { useStateContext } from "../../context/StateContext";
 
+import Product from "../../components/Product";
+
 const ProductDetails = ({
   product: {
     defaultProductVariant: { images, price },
@@ -19,6 +21,7 @@ const ProductDetails = ({
   products,
 }) => {
   const { decQty, incQty, qty, onAdd } = useStateContext();
+  const [index, setIndex] = useState(0);
 
   return (
     <div>
@@ -26,15 +29,22 @@ const ProductDetails = ({
         <div>
           <div className="image-container">
             <img
-              src={urlFor(images && images[0])}
+              src={urlFor(images && images[index])}
               className="product-detail-image"
             />
           </div>
-          {/* <div className="small-images-container">
-          {images?.map((item, i) => (
-            <img src={urlFor(item)} className="" onMouseEnter={null} />
-          ))}
-        </div> */}
+          <div className="small-images-container">
+            {images?.map((item, i) => (
+              <img
+                key={i}
+                src={urlFor(item)}
+                className={
+                  i === index ? "small-image selected-image" : "small-image"
+                }
+                onMouseEnter={() => setIndex(i)}
+              />
+            ))}
+          </div>
         </div>
 
         <div className="product-detail-desc">
@@ -74,6 +84,17 @@ const ProductDetails = ({
             <button type="button" className="buy-now">
               Buy Now
             </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="maylike-products-wrapper">
+        <h2>You may also like</h2>
+        <div className="marquee">
+          <div className="maylike-products-container track">
+            {products.map((item) => (
+              <Product key={item._id} product={item} />
+            ))}
           </div>
         </div>
       </div>
